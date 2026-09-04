@@ -43,23 +43,44 @@ PRD와 충돌하는 구현 요청이 오면 먼저 PRD 개정 여부를 선생�
   ```
 - Flutter 업그레이드는 선생님 요청 시에만 `flutter upgrade`로 하고, 이 절의 버전을 함께 갱신합니다.
 
-## 5. 코드 구조 (목표)
+## 5. 코드 구조 (2026-09-04 11단계 기준, 실제)
 ```
 lib/
-  main.dart                  # 앱 진입, 테마, 라우팅
-  app/                       # 앱 수준 설정(상수, 색상, 문자열)
-  models/measurement.dart    # PRD 6.1 데이터 모델 + JSON 직렬화
+  main.dart                    # 앱 진입, Provider, AppStage → 화면 라우팅
+  app/
+    app_state.dart             # ChangeNotifier. 권한/서비스/측정/저장/오프라인 흐름 전체 (PRD 2.1)
+    constants.dart             # 기준값 20 m/100 m, 타임아웃 15초, 50건, 줌 17, 앱 버전, 웹 키(dart-define)
+    strings.dart               # 한국어 UI 문자열 전부
+    colors.dart                # 연결망별 마커 색 (WiFi 파랑 / 이동통신 주황 / 없음·알 수 없음 회색)
+  models/measurement.dart      # PRD 6.1 데이터 모델 + JSON 직렬화, enum 3종
   services/
-    location_service.dart    # 권한·위치 서비스 상태·단발 측정(FR-01~03)
-    connectivity_service.dart# 연결망 판별(FR-06), 웹은 unknown 고정
-    platform_channel.dart    # Android 전용: provider/dataNetworkType/isMock (FR-06a, 07, 13)
-    storage_service.dart     # shared_preferences 저장/삭제, 50건 FIFO (FR-09, 10)
-    source_estimator.dart    # PRD 6.2 규칙, 기준값 상수
-  screens/                   # S1 권한 안내, S2 메인, S3 목록, E1/E2/E3 안내
-  widgets/                   # 지도, 정보 패널, 배지 등
-android/app/src/main/kotlin/com/tsdevel/locationcheck/MainActivity.kt  # MethodChannel 구현
-web/                         # index.html(Maps JS 로드), manifest.json(PWA)
-test/                        # 단위 테스트: 거리 계산, 출처 추정, 저장 FIFO, JSON 직렬화
+    location_service.dart      # 권한·위치 서비스·고정밀 단발 측정·15초 타임아웃(Dart 쪽) (FR-01~03)
+    connectivity_service.dart  # 연결망 판별(FR-06/06a), 오프라인 감시(FR-12). 웹은 unknown 고정
+    platform_channel.dart      # Android MethodChannel 래퍼: 전화 상태 권한, LTE/5G, 위치 제공자
+    storage_service.dart       # shared_preferences: 결과 50건 FIFO, 권한 플래그 (FR-09/10)
+    source_estimator.dart      # PRD 6.2 출처 추정 + Haversine 거리 (FR-07/08)
+    maps_loader.dart           # 웹 Maps JS 스크립트 1회 로드 (stub/web 조건부 import)
+    maps_script_stub.dart / maps_script_web.dart
+    web_context.dart           # HTTPS 아닌 웹 접속 판정 (EX-13)
+  screens/
+    permission_intro_screen.dart   # S1
+    main_screen.dart               # S2 (지도 + 정보 패널 + 측정 버튼 + 오프라인 배너)
+    history_screen.dart            # S3 최근 결과
+    service_off_screen.dart        # E1
+    permission_denied_screen.dart  # E2
+    insecure_context_screen.dart   # 웹 HTTP 접속 안내
+  widgets/
+    measurement_map.dart       # GoogleMap + 점 마커 + 오차 원 (FR-04)
+    info_panel.dart            # 정보 패널, 좌표 복사 (FR-05/07/08/13/14)
+    notice_layout.dart         # 안내 화면 공통 레이아웃
+android/app/src/main/kotlin/com/tsdevel/locationcheck/MainActivity.kt  # MethodChannel 구현(Kotlin)
+web/                           # index.html(키 없음), manifest.json(PWA)
+tool/build_web.ps1             # 키 주입 웹 빌드/실행
+tool/serve_web.dart            # build/web 로컬 정적 서버 (검증용)
+.github/workflows/deploy-pages.yml  # main push → 분석·테스트·웹 빌드 → GitHub Pages
+test/                          # 70건: fakes.dart(공용 가짜) + 단위 9파일 + 위젯 2파일
+docs/PRD.md, TASKS.md, TEST_RESULTS.md
+dist/                          # 릴리스 APK 사본 (gitignore)
 ```
 - 상태 관리는 Flutter 기본 `ChangeNotifier` + `Provider`만 사용. 다른 상태 관리 패키지를 도입하지 않습니다.
 - 플랫폼 분기는 `kIsWeb`과 `defaultTargetPlatform`으로만 하며, 서비스 계층 안에서 처리하고 화면 코드에는 분기를 두지 않습니다.

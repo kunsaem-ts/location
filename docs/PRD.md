@@ -2,16 +2,17 @@
 
 | 항목 | 내용 |
 |---|---|
-| 문서 버전 | 0.2 (미결 사항 Q-1~Q-11 확정 반영) |
-| 작성일 | 2026-09-04 (v0.1) / 2026-09-04 (v0.2) |
+| 문서 버전 | 0.3 (구현 완료 반영) |
+| 작성일 | 2026-09-04 (v0.1 / v0.2 / v0.3) |
 | 작성자 | 마클 (PM/아키텍트) |
-| 상태 | 최종 승인 대기 — 승인 전까지 소스 코드 생성 없음 |
+| 상태 | v0.2 승인(2026-09-04) → 1차 구현 완료. 실기기 검증(10-2, 10-3) 대기 |
 
 ### 변경 이력
 | 버전 | 일자 | 내용 |
 |---|---|---|
 | 0.1 | 2026-09-04 | 초안 작성. 플랫폼·배포·저장 범위 확정, 미결 사항 11건 제시 |
 | 0.2 | 2026-09-04 | Q-1~Q-11 답변 반영. 호스팅·API 키 절차·기준값·최소 OS·타임아웃·앱 이름·색상·1차 범위 확정 |
+| 0.3 | 2026-09-04 | 구현 중 확정·변경된 사항을 9절에 정리. 저장소·배포 주소·키 운용 방식 반영, O-1~O-3 해소 |
 
 ---
 
@@ -28,9 +29,9 @@
 | 플랫폼 | **Flutter 단일 코드베이스** |
 | Android 배포 | `flutter build apk` 산출물을 개인 기기에 직접 설치(사이드로드) |
 | iOS 배포 | 빌드용 Mac이 없으므로 **같은 Flutter 코드를 웹으로 빌드해 PWA로 배포**, iPhone Safari에서 "홈 화면에 추가" |
-| PWA 호스팅 | **GitHub Pages** (HTTPS 자동) — Q-1 |
+| PWA 호스팅 | **GitHub Pages** (HTTPS 자동) — Q-1. 저장소 `kunsaem-ts/location`(공개), 주소 `https://kunsaem-ts.github.io/location/` |
 | 지도 | Google Maps — Android: `google_maps_flutter` (Maps SDK for Android) / iOS PWA: `google_maps_flutter_web` (Maps JavaScript API) |
-| API 키 | **미보유** → 선생님이 직접 발급, 마클은 TASKS.md에 체크리스트 제공 (키 2종 필요) — Q-2 |
+| API 키 | 선생님이 발급한 **키 1개를 Android·웹 공용**으로 사용(v0.3). Android는 `local.properties`, 웹은 리포지토리 Secret에서 주입. 제한 설정은 9.3 참조 — Q-2 |
 | 앱 이름 / 패키지명 | **"위치 측정"** / `com.tsdevel.locationcheck` — Q-9 |
 | 최소 OS | **Android 10 (API 29) 이상 / iOS 16.4 이상 Safari** — Q-5 |
 | 스토어 등록 | 없음 |
@@ -385,7 +386,59 @@ accuracyM 없음        → unknown
 | O-4 | 테스트 기기 정보 | 실제 삼성 기기 모델·Android 버전, iPhone 모델·iOS 버전. 7절 테스트 시 기록 | 테스트 단계 |
 | O-5 | 실측 후 기준값 조정 | 6.2 기준값(20 m / 100 m)이 실측과 맞지 않으면 상수만 조정 | 테스트 단계 후 |
 
-### 8.3 다음 단계 (PRD v0.2 승인 후)
-1. `CLAUDE.md` 작성 (프로젝트 규칙, Flutter 버전, 빌드 명령, API 키 취급 규칙)
-2. `docs/TASKS.md` 작업 체크리스트 작성 (O-1~O-3 절차 포함)
-3. 단계별 구현 (승인 전까지 소스 코드 생성 없음)
+### 8.3 다음 단계 (v0.3 기준)
+1. ~~`CLAUDE.md` 작성~~ 완료
+2. ~~`docs/TASKS.md` 작성~~ 완료
+3. ~~단계별 구현~~ 0~9단계 완료, 10단계 실기기 검증 대기 (`docs/TEST_RESULTS.md`)
+
+---
+
+## 9. 구현 중 확정·변경 사항 (v0.3)
+
+구현(0~9단계, 2026-09-04)에서 v0.2와 달라졌거나 구체화된 내용입니다. 요구사항의 의도는 바꾸지 않았습니다.
+
+### 9.1 요구사항 구체화
+
+| 관련 | 내용 |
+|---|---|
+| FR-03 | 타임아웃 15초는 플러그인 옵션 대신 Dart `Future.timeout`으로 건다. geolocator_web 4.1.4가 timeLimit 단위를 잘못 넘겨 웹에서 동작하지 않기 때문. 웹은 "마지막 수신 위치" API가 없어 타임아웃 시 곧바로 실패 문구 |
+| FR-06a | 국내 5G는 대부분 NSA라 `dataNetworkType`이 LTE(13)로 나온다. LTE일 때 `TelephonyDisplayInfo.overrideNetworkType`(NR_NSA=3, NR_NSA_MMWAVE=4, NR_ADVANCED=5)을 한 번 더 확인해 5G로 판별한다(API 31+, 콜백 상한 2초). Android 10~11에서는 NSA 5G가 `LTE`로 표시됨 |
+| FR-06 (웹) | connectivity_plus 웹 구현은 온라인이면 무조건 `wifi`를 돌려주므로 이 값을 무시하고 `알 수 없음`으로 표시한다(C-4). 오프라인만 `없음` |
+| FR-07 | Android 위치 제공자는 gps/network/fused 제공자의 마지막 위치 중 좌표·시각이 일치하는 것을 찾아 판정하고, 없으면 최신 위치의 제공자를 쓴다. 출처를 알 수 없을 때 라벨은 `추정 불가`(항상 "추정" 포함 규칙). 오차반경이 0 이하(Android에서 값 없음)이면 `추정 불가` |
+| FR-08 | 거리 비교 기준은 화면에 표시 중인 결과가 아니라 **직전 측정(목록의 최신)**. 목록에서 과거 항목을 골라 보다가 다시 측정해도 기준은 바뀌지 않는다 |
+| FR-01/FR-11 (웹) | 웹은 브라우저 권한이 `prompt`인지 `denied`인지만 구분된다. `prompt`는 항상 S1 안내 화면으로 보내고(요청 이력 무시), `denied`만 E2(영구)로 본다. iOS PWA가 세션마다 권한을 다시 묻는 경우(Q-6)에 맞춘 동작 |
+| FR-04 | 기본 핀 마커는 회색을 만들 수 없어 흰 테두리 점 마커를 직접 그린다. 마커·오차 원 색은 연결망 기준(Q-10) |
+| FR-14 | 클립보드 복사 실패 시에도 스낵바로 실패를 알린다 |
+| EX-14 | 저장 실패 시 화면 결과는 유지하고 메모리 목록에는 남긴다(재실행 시 사라짐) |
+| PRD 6.3 | 손상된 JSON은 빈 목록으로 읽는다. `schemaVersion`은 별도 키로 저장 |
+| PRD 6.1 | `appVersion`은 상수(`0.1.0`)로 기록하며 pubspec의 version과 수동으로 맞춘다 |
+
+### 9.2 플랫폼·배포
+
+| 항목 | 내용 |
+|---|---|
+| 저장소 | `https://github.com/kunsaem-ts/location` (공개). 비공개로는 무료 플랜에서 Pages 불가 확인 |
+| 배포 | main push → GitHub Actions(분석·테스트·웹 빌드) → GitHub Pages `https://kunsaem-ts.github.io/location/` |
+| 개발 환경 | 관리자 권한 없는 PC라 Android Studio 대신 명령줄 도구 + OpenJDK 17. Flutter 3.47.2 (SDK 36 요구) |
+| PWA 셸 | Flutter 3.47 웹 빌드는 서비스 워커를 등록하지 않는다. 4절의 "오프라인 시 PWA 셸 실행"은 현재 구성에서 되지 않음(온라인에서 앱을 연 뒤 오프라인이 되면 측정은 가능). 필요 시 별도 작업 |
+| 릴리스 APK | 디버그 키 서명, 전체 ABI 포함 46.9 MB. `dist/`에 사본(gitignore, APK에 Maps 키 포함) |
+| 테스트 | 자동 테스트 70건(단위·위젯). 실기기 시나리오는 `docs/TEST_RESULTS.md` |
+
+### 9.3 API 키 운용 (NFR-02)
+
+| 항목 | 내용 |
+|---|---|
+| 보관 | `android/local.properties`의 `MAPS_API_KEY` 한 곳(gitignore). 웹은 리포지토리 Secret `MAPS_API_KEY` |
+| 주입 | Android: Gradle → manifest placeholder. 웹: `--dart-define` → 앱이 Maps JS 스크립트를 동적 로드(index.html에 키 없음) |
+| 노출 범위 | 웹 JS 번들과 APK 안에는 키가 들어간다(구조상 불가피). 그래서 **키 제한**이 중요 |
+| 제한(선생님 조치) | 키 1개 공용 구조에서는 "Android 앱 제한"과 "웹사이트 제한"을 동시에 걸 수 없다. 권장: 키를 2개로 분리해 Android 키는 패키지 `com.tsdevel.locationcheck` + SHA-1 `8A:FB:37:67:5D:28:7E:41:5F:FC:46:D6:CA:63:AB:BC:9E:6B:AB:88`, 웹 키는 리퍼러 `https://kunsaem-ts.github.io/location/*` + `http://127.0.0.1:*`. 분리 시 Secret과 local.properties를 각각 갱신 |
+
+### 9.4 미결 사항 정리
+
+| ID | 상태 |
+|---|---|
+| O-1 API 키 | 해소(키 1개 수령). 제한 설정만 남음 |
+| O-2 GitHub 저장소 | 해소(`kunsaem-ts/location`, 공개) |
+| O-3 SHA-1 | 해소(디버그 키 SHA-1 확보, 9.3) |
+| O-4 테스트 기기 정보 | `docs/TEST_RESULTS.md` 0절에 기록 예정 |
+| O-5 기준값 조정 | 실측 후 판단. 값은 `lib/app/constants.dart`에만 있음 |
