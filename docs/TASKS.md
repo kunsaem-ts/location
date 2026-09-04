@@ -115,7 +115,7 @@
   - 검증: `build/web`을 로컬 정적 서버로 열어 동작
 - [x] 8-4. GitHub Actions 워크플로 — push 시 웹 빌드 후 `gh-pages` 배포, 웹 키는 리포지토리 Secret — 실행 33836896196 성공(analyze·test·build·deploy). Pages 소스=GitHub Actions, 저장소 공개 전환 후 배포. `https://kunsaem-ts.github.io/location/`에서 지도·측정 동작 확인(2026-09-04). 참고: Flutter 3.47 웹 빌드는 서비스 워커를 등록하지 않아 오프라인 셸 캐시는 없음
   - 검증: `https://<id>.github.io/<repo>/`에서 앱 로드, 지도 표시
-- [!] 8-5. 선생님: iPhone Safari에서 열기 → 공유 → "홈 화면에 추가", 위치 권한 허용
+- [!] 8-5. 선생님: iPhone 12 mini에 홈 화면 추가 — 절차는 `docs/IPHONE.md`. 마클 사전 검증(2026-09-04): 375×731 iframe에서 S1·메인(7행+버튼)·최근 결과·오프라인 배너 레이아웃 정상, 상태 표시줄 스타일 default·페이지 배경색 적용
   - 검증: 홈 화면 아이콘으로 실행, 측정 성공, 연결망 `알 수 없음`
 
 ## 9단계. Android 릴리스 빌드
