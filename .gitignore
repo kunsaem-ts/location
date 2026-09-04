@@ -25,3 +25,6 @@ build/web/
 # 로컬 환경
 .env
 *.log
+
+# 배포 산출물 (APK에 Maps 키 포함)
+dist/

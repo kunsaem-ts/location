@@ -120,7 +120,7 @@
 
 ## 9단계. Android 릴리스 빌드
 
-- [ ] 9-1. `flutter build apk --release` (디버그 서명 그대로 사용, 개인용)
+- [x] 9-1. `flutter build apk --release` (디버그 서명 그대로 사용, 개인용) — 2026-09-04 빌드 성공(46.9 MB, 전체 ABI 포함). 패키지·라벨·minSdk 29·targetSdk 36·권한 6종·디버그 서명(SHA-1 8A:FB:…) 확인. 산출물 사본 `dist/location_check-0.1.0-release.apk`(gitignore). 실기기 설치·실행은 9-2 대기
   - 검증: `app-release.apk` 생성, 삼성 기기에 설치·실행
 - [!] 9-2. 선생님: 기기에서 "출처를 알 수 없는 앱" 허용 후 APK 설치
   - 검증: 런처에 "위치 측정" 표시
