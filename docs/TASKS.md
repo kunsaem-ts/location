@@ -111,9 +111,9 @@
 - [x] 8-1. GitHub 저장소 `kunsaem-ts/location` (2026-09-04). PWA 주소 `https://kunsaem-ts.github.io/location/`
 - [x] 8-2. `web/manifest.json` — 이름 "위치 측정", `display: standalone`, 아이콘 192/512, 한국어 — manifest.json(이름·lang ko·standalone·아이콘 4종)과 index.html 제목·메타 갱신
   - 검증: Chrome DevTools > Application > Manifest 오류 없음
-- [ ] 8-3. `flutter build web --release --base-href /<repo>/` + `tool/build_web.ps1`(키 치환 포함)
+- [x] 8-3. `flutter build web --release --base-href /<repo>/` + `tool/build_web.ps1`(키 치환 포함) — `tool/build_web.ps1 -BaseHref /location/` 빌드 후 `dart run tool/serve_web.dart`로 Chrome에서 확인(base href·manifest 정상)
   - 검증: `build/web`을 로컬 정적 서버로 열어 동작
-- [ ] 8-4. GitHub Actions 워크플로 — push 시 웹 빌드 후 `gh-pages` 배포, 웹 키는 리포지토리 Secret
+- [x] 8-4. GitHub Actions 워크플로 — push 시 웹 빌드 후 `gh-pages` 배포, 웹 키는 리포지토리 Secret — 실행 33836896196 성공(analyze·test·build·deploy). Pages 소스=GitHub Actions, 저장소 공개 전환 후 배포. `https://kunsaem-ts.github.io/location/`에서 지도·측정 동작 확인(2026-09-04). 참고: Flutter 3.47 웹 빌드는 서비스 워커를 등록하지 않아 오프라인 셸 캐시는 없음
   - 검증: `https://<id>.github.io/<repo>/`에서 앱 로드, 지도 표시
 - [!] 8-5. 선생님: iPhone Safari에서 열기 → 공유 → "홈 화면에 추가", 위치 권한 허용
   - 검증: 홈 화면 아이콘으로 실행, 측정 성공, 연결망 `알 수 없음`
