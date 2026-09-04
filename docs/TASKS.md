@@ -127,9 +127,9 @@
 
 ## 10단계. 테스트 (PRD 7절)
 
-- [ ] 10-1. 단위 테스트 전체 통과 (`flutter test`) — 1-5, 3-1, 5-2, 5-3, 6-1, 6-4
-- [!] 10-2. 선생님: Android 실기기 시나리오 T-01~T-20 수행, 결과를 `docs/TEST_RESULTS.md`에 기록 (마클이 양식 제공)
-- [!] 10-3. 선생님: iPhone PWA 시나리오 (T-05, T-13, T-16, T-17 제외) 수행, 같은 파일에 기록
+- [x] 10-1. 단위 테스트 전체 통과 (`flutter test`) — 1-5, 3-1, 5-2, 5-3, 6-1, 6-4 — 70건 통과(2026-09-04). 목록: measurement 4, app_state 21, connectivity 16, source_estimator 8, colors 1, storage 6, info_panel 7, history_screen 4, web_context 4
+- [!] 10-2. 선생님: Android 실기기 시나리오 T-01~T-20 수행, 결과를 `docs/TEST_RESULTS.md` 2절에 기록 (양식 작성 완료)
+- [!] 10-3. 선생님: iPhone PWA 시나리오 (T-05, T-13, T-16, T-17 제외) 수행, `docs/TEST_RESULTS.md` 3절에 기록
 - [ ] 10-4. 실측 결과로 기준값(20 m / 100 m) 조정 필요 여부 판단 (O-5), 필요 시 `constants.dart`만 수정
   - 검증: PRD 7.3 전체 합격 기준 충족
 
